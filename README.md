@@ -17,4 +17,23 @@ Used a hierarchical structure in the JSON to represent different sections of the
 Included fallback rules for fields that might have multiple representations.
 
 Key Code Section:
-python
+
+def create_extraction_template():
+    template = {
+        "header": {
+            "Invoice Number": {
+                "rule": "Find pattern matching '(?:Invoice|Bill)\\s*(?:No|Number|#)[:.]?\\s*(\\S+)' and extract the captured group",
+                "fallback": "Find first occurrence of a pattern like 'INV-\d+' or '#\d+'"
+            },
+            # ... other header fields ...
+        },
+        "line_items": {
+            "table_start": {
+                "rule": "Find line containing at least 3 of ['Description', 'Quantity', 'Unit Price', 'Amount', 'Total']",
+                "fallback": "Find first line after header section with tabular structure"
+            },
+            # ... table extraction rules ...
+        },
+        # ... summary section ...
+    }
+    return json.dumps(template, indent=2)
