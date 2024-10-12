@@ -1,0 +1,75 @@
+import json
+
+def generate_invoice_template():
+    template = {
+        "header": {
+            "Invoice Number": {"rule": "Find 'Invoice No' and extract the following numeric value"},
+            "Invoice Date": {"rule": "Find 'Date' in top-right section and extract the following date"},
+            "Customer Number": {"rule": "Find 'Customer No' and extract the following numeric value"},
+            "Invoice Period": {"rule": "Find 'Invoice Period' and extract the following date range"},
+            "Vendor Name": {"rule": "Extract first line of text from top-left section"},
+            "Vendor Address": {"rule": "Extract multi-line text following Vendor Name until 'VAT No.'"},
+            "Vendor VAT Number": {"rule": "Find 'VAT No.' and extract the following alphanumeric value"},
+            "Customer Name": {"rule": "Extract first line after Vendor Address"},
+            "Customer Contact": {"rule": "Extract second line after Vendor Address"},
+            "Customer Address": {"rule": "Extract remaining lines after Customer Contact"},
+            "Contact Name": {"rule": "Find 'Name:' in top-right and extract the following text"},
+            "Contact Phone": {"rule": "Find 'Phone:' in top-right and extract the following text"}
+        },
+        "service_description": {
+            "rule": "Extract all rows between 'Service Description' and 'VAT'",
+            "columns": {
+                "Description": {"rule": "Extract text from start of line until first numeric value"},
+                "Amount": {"rule": "Extract first currency value in format 'X.XXX,XX €'"},
+                "Quantity": {"rule": "Extract numeric value after Amount"}
+            }
+        },
+        "totals": {
+            "Subtotal": {"rule": "Find 'Total' (not 'Total Amount') and extract the following currency value"},
+            "VAT": {
+                "rate": {"rule": "Find 'VAT' and extract the percentage value"},
+                "amount": {"rule": "Find 'VAT' and extract the following currency value"}
+            },
+            "Gross Amount": {"rule": "Find 'Gross Amount incl. VAT' and extract the following currency value"}
+        },
+        "transaction_fees": {
+            "rule": "Extract table with headers 'T1:', 'T2:', ..., 'G6:'",
+            "columns": {
+                "Category": {"rule": "Extract column headers 'T1:', 'T2:', ..., 'G6:'"},
+                "Price": {"rule": "Extract corresponding currency values in row 'Amount in Euro:'"}
+            }
+        },
+        "user_accounts": {
+            "rule": "Extract rows starting with 'user-account-'",
+            "columns": {
+                "Account": {"rule": "Extract 'user-account-X'"},
+                "Query Counts": {"rule": "Extract numeric values for each T and G category"},
+                "Total Amount": {"rule": "Extract last currency value in the row"}
+            }
+        },
+        "query_references": {
+            "rule": "Extract rows under 'Query Reference:'",
+            "columns": {
+                "Reference": {"rule": "Extract alphanumeric code at start of line"},
+                "Query Counts": {"rule": "Extract numeric values for each T category"},
+                "Total Amount": {"rule": "Extract currency value at end of line"}
+            }
+        },
+        "payment_info": {
+            "Terms": {"rule": "Extract text starting with 'Terms of Payment:' until next section"},
+            "IBAN": {"rule": "Find 'IBAN' and extract the following alphanumeric value"},
+            "BIC": {"rule": "Find 'BIC' and extract the following alphanumeric value"}
+        },
+        "additional_info": {
+            "Website": {"rule": "Extract full URL starting with 'https://www.wmaccess.com/'"}
+        }
+    }
+
+    return json.dumps(template, indent=2)
+
+# Generating and printing the template
+print(generate_invoice_template())
+
+
+with open('invoice_template.json', 'w') as f:
+    f.write(generate_invoice_template())
